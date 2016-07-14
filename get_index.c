@@ -1,0 +1,87 @@
+#include <stdio.h>
+
+
+#define	BAND00_VOLT	0.0
+#define	BAND01_VOLT	0.33
+#define	BAND02_VOLT	0.67
+#define	BAND03_VOLT	1.0
+#define	BAND04_VOLT	1.33
+#define	BAND05_VOLT	1.67
+#define	BAND06_VOLT	2.0
+#define	BAND07_VOLT	2.33
+#define	BAND08_VOLT	2.67
+#define	BAND09_VOLT	3.0
+#define	BAND10_VOLT	3.33
+#define	BAND11_VOLT	3.67
+#define	BAND12_VOLT	4.0	
+
+#include <float.h>
+
+
+
+#define	THRE_HYSTERESIS	0.2/2
+
+static const double upThre[] = {
+	(0.5 + THRE_HYSTERESIS)*BAND01_VOLT + (0.5 - THRE_HYSTERESIS)*BAND00_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND02_VOLT + (0.5 - THRE_HYSTERESIS)*BAND01_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND03_VOLT + (0.5 - THRE_HYSTERESIS)*BAND02_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND04_VOLT + (0.5 - THRE_HYSTERESIS)*BAND03_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND05_VOLT + (0.5 - THRE_HYSTERESIS)*BAND04_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND06_VOLT + (0.5 - THRE_HYSTERESIS)*BAND05_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND07_VOLT + (0.5 - THRE_HYSTERESIS)*BAND06_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND08_VOLT + (0.5 - THRE_HYSTERESIS)*BAND07_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND09_VOLT + (0.5 - THRE_HYSTERESIS)*BAND08_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND10_VOLT + (0.5 - THRE_HYSTERESIS)*BAND09_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND11_VOLT + (0.5 - THRE_HYSTERESIS)*BAND10_VOLT,
+	(0.5 + THRE_HYSTERESIS)*BAND12_VOLT + (0.5 - THRE_HYSTERESIS)*BAND11_VOLT,
+	DBL_MAX,
+};
+
+
+static const double downThre[] = {
+	0.0,
+	(0.5 - THRE_HYSTERESIS)*BAND01_VOLT + (0.5 + THRE_HYSTERESIS)*BAND00_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND02_VOLT + (0.5 + THRE_HYSTERESIS)*BAND01_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND03_VOLT + (0.5 + THRE_HYSTERESIS)*BAND02_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND04_VOLT + (0.5 + THRE_HYSTERESIS)*BAND03_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND05_VOLT + (0.5 + THRE_HYSTERESIS)*BAND04_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND06_VOLT + (0.5 + THRE_HYSTERESIS)*BAND05_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND07_VOLT + (0.5 + THRE_HYSTERESIS)*BAND06_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND08_VOLT + (0.5 + THRE_HYSTERESIS)*BAND07_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND09_VOLT + (0.5 + THRE_HYSTERESIS)*BAND08_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND10_VOLT + (0.5 + THRE_HYSTERESIS)*BAND09_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND11_VOLT + (0.5 + THRE_HYSTERESIS)*BAND10_VOLT,
+	(0.5 - THRE_HYSTERESIS)*BAND12_VOLT + (0.5 + THRE_HYSTERESIS)*BAND11_VOLT,
+};
+
+
+
+size_t GetIndexWithHysteresis(size_t index, double val, const double* upTbl, const double* downTbl, size_t tblSize)
+{
+	index = (0 <= index)?	index:0;
+	index = (index < tblSize)?	index:tblSize - 1;
+
+	for( ; upTbl[index] < val; index++) { ; }
+	for( ; val < downTbl[index]; index--) { ; }
+
+	return index;
+}
+
+
+
+int main(int argc, char* argv[])
+{
+	int i;
+	int index = 0;
+
+	double vol;
+
+	while(EOF != scanf("%lf", &vol)) {
+		index = GetIndexWithHysteresis(index, vol, upThre, downThre, sizeof(upThre)/sizeof(upThre[0]));
+
+		printf("index = %d\n", index);
+	}
+
+	return 0;
+}
+
